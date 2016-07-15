@@ -1,0 +1,68 @@
+﻿@model HistoryApiSample.Models.SelectorViewModel
+@{
+    ViewBag.Title = "Selector";
+}
+
+<style>
+    .lbl {
+        display: inline-block;
+        width: 210px;
+        text-align: right;
+    }
+</style>
+
+<h2>Car select</h2>
+
+@using (Html.BeginForm())
+{
+    <div id="divMake">
+        @Html.LabelFor(m => m.SelectedMake, new { @class = "lbl" })
+        @Html.DropDownListFor(m => m.SelectedMake, Model.Makes, " -- please select a make -- ")
+    </div>
+
+    <div id="divModel" style="display: none">
+        @Html.LabelFor(m => m.SelectedModel, new { @class = "lbl" })
+        @Html.DropDownListFor(m => m.SelectedModel, Model.Models, " -- please select a model -- ")
+    </div>
+
+    <input type="submit" value="Continue" />
+}
+
+@section scripts
+{
+    <script type="text/javascript">
+        $(function () {
+            $("#SelectedMake").change(makeChanged);
+            makeChanged();
+        });
+
+        function makeChanged() {
+            var selectedMake = $("#SelectedMake").val();
+            if (selectedMake === "") {
+                $('#divModel').hide();
+
+            } else {
+                $.ajax({
+                    cache: true,
+                    type: 'GET',
+                    url: '@Url.Action("GetModelsByMake")',
+                    data: { 'makeId': selectedMake },
+                    success: function (data) {
+                        var models = $("#SelectedModel");
+                        models.empty();
+                        models.append($("<option></option>").attr("value", "").text(" -- please select a model -- "));
+                        $.each(data, function (key, val) {
+                            models.append($("<option></option>").attr("value", val.Id).text(val.Text));
+                        });
+                        $('#divModel').show();
+                    },
+                    error: function (xhr, ajaxOptions, error) {
+                        alert(error);
+                        $('#divModel').hide();
+                    }
+                });
+            }
+        }
+
+    </script>
+}

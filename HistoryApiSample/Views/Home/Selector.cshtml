@@ -32,13 +32,19 @@
 {
     <script type="text/javascript">
         $(function () {
-            init();
-            $("#SelectedMake").change(makeChanged);
-            $("#SelectedModel").change(modelChanged);
+            init(function () {
+                $("#SelectedMake").change(makeChanged);
+                $("#SelectedModel").change(modelChanged);
+            });
         });
 
-        window.addEventListener('popstate', function (event) {
-            alert('popstate');
+        window.addEventListener('popstate', function () {
+            $("#SelectedMake").off("change");
+            $("#SelectedModel").off("change");
+            init(function () {
+                $("#SelectedMake").change(makeChanged);
+                $("#SelectedModel").change(modelChanged);
+            });
         });
 
         function getParameterByName(name, url) {
@@ -55,8 +61,6 @@
             var selectedMake = $("#SelectedMake").val();
             if (selectedMake === "") {
                 $('#divModel').hide();
-                // clear models
-                // push another history state
             } else {
                 loadModels(selectedMake, true);
             }
@@ -97,12 +101,21 @@
                 history.pushState(null, null, "/Home/Selector?mkId=" + makeId + "&mdId=" + modelId);
         }
 
-        function init() {
+        function init(afterInit) {
             var makeId = getParameterByName("mkId", document.location.href);
-            if (!makeId) return;
+            if (!makeId) {
+                $("#SelectedMake").val("");
+                $('#divModel').hide();
+                if (afterInit)
+                    afterInit();
+                return;
+            }
+            $("#SelectedMake").val(makeId);
             var modelId = getParameterByName("mdId", document.location.href);
             loadModels(makeId, false, function () {
                 $("#SelectedModel").val(modelId);
+                if (afterInit)
+                    afterInit();
             });
         }
 

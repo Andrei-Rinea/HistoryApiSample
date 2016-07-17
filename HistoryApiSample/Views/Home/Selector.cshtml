@@ -37,10 +37,6 @@
             $("#SelectedModel").change(modelChanged);
         });
 
-        window.addEventListener('popstate', function (event) {
-            alert('popstate');
-        });
-
         function getParameterByName(name, url) {
             if (!url) url = window.location.href;
             name = name.replace(/[\[\]]/g, "\\$&");
@@ -55,8 +51,6 @@
             var selectedMake = $("#SelectedMake").val();
             if (selectedMake === "") {
                 $('#divModel').hide();
-                // clear models
-                // push another history state
             } else {
                 loadModels(selectedMake, true);
             }
@@ -70,7 +64,7 @@
                 data: { 'makeId': make },
                 success: function (data) {
                     if (pushState)
-                        history.pushState(null, null, "/Home/Selector?mkId=" + make);
+                        history.replaceState(null, null, "/Home/Selector?mkId=" + make);
                     var models = $("#SelectedModel");
                     models.empty();
                     models.append($("<option></option>").attr("value", "").text(" -- please select a model -- "));
@@ -92,9 +86,9 @@
             var makeId = getParameterByName("mkId", document.location.href);
             var modelId = $("#SelectedModel").val();
             if (!modelId)
-                history.pushState(null, null, "/Home/Selector?mkId=" + makeId);
+                history.replaceState(null, null, "/Home/Selector?mkId=" + makeId);
             else
-                history.pushState(null, null, "/Home/Selector?mkId=" + makeId + "&mdId=" + modelId);
+                history.replaceState(null, null, "/Home/Selector?mkId=" + makeId + "&mdId=" + modelId);
         }
 
         function init() {
